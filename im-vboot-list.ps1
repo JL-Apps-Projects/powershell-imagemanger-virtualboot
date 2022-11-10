@@ -2,8 +2,11 @@ $scriptpath = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 cd $scriptpath
 $backupsalt = import-csv "key.conf"
 Write-Host "Checking config file"
+Foreach ($clientfolder in $backupsalt){
+$backupdatastore = $clientfolder.path
+$saltkey = $clientfolder.salt
 Foreach ($i in $(Get-Content script.conf)){
-    Set-Variable -Name $i.split("=")[0] -Value $i.split("=",2)[1]
+   Set-Variable -Name $i.split("=")[0] -Value $i.split("=",2)[1]
 }
 Write-Host "Values loaded"
 Write-Host "-----------------------------------------------------------"
@@ -15,10 +18,11 @@ Write-Host "-----------------------------------------------------------"
 
 $machinebackups = Get-ChildItem $backupdatastore -Directory
 ForEach($machine in $machinebackups ) {
-$clientname = $backupdatastore.Split("\")
-$saltkey = $backupsalt | Where client -eq $clientname[4] | Select -exp salt
+#$clientname = $backupdatastore.Split("\")
+#$saltkey = $backupsalt | Where client -eq $clientname[4] | Select -exp salt
 $backupdirectoy = $backupdatastore + $machine
 cd $backupdirectoy
+Write-Host "Moving to $backupdirectoy"
 Write-Host "Checking directory $backupdirectoy for backup files"
 $latestimage = Get-ChildItem C_VOL-*-cd.spi | Sort-Object -Descending -Property LastWriteTime | select -First 1 | Select -exp Name
 if (!$latestimage) 
@@ -56,3 +60,4 @@ if($LASTEXITCODE -eq 0)
 Write-Host "-----------------------------------------------------------"
 }
 cd $scriptpath
+}
