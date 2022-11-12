@@ -92,6 +92,11 @@ if($LASTEXITCODE -eq 0)
 }else 
 {
     Write-Host "Virtual Boot experienced an error"
+    $body = ConvertTo-Json -Depth 2 @{
+    text = $fullbackuppath  + "<br>" + 'Virtual Boot experienced an error'
+    }
+
+    Invoke-RestMethod -Method post -ContentType 'Application/Json' -Body $body -Uri $webhookurl
 }
 }
 }
